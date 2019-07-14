@@ -18,9 +18,8 @@ namespace PDFLibraryTests
 
          var json = PDFLibrary.Main.GetData(stream);
 
-
-
-         var cust = JsonConvert.DeserializeObject<Customer>(json, new BoolConverter());
+         var cust = ImmutableClass.Create<Customer>(json, new JsonConverter[] {new BoolConverter()});
+ 
 
 
         }
