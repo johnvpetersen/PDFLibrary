@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PDFLibrary", "PDFLibrary\PD
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PDFLibraryTests", "PDFLibraryTests\PDFLibraryTests.csproj", "{293C2D7E-5DA0-4D9A-BD3F-22396578812C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web", "Web\Web.csproj", "{7B85A559-AD52-4599-8EF6-F9763AEB8951}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{293C2D7E-5DA0-4D9A-BD3F-22396578812C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{293C2D7E-5DA0-4D9A-BD3F-22396578812C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{293C2D7E-5DA0-4D9A-BD3F-22396578812C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B85A559-AD52-4599-8EF6-F9763AEB8951}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B85A559-AD52-4599-8EF6-F9763AEB8951}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B85A559-AD52-4599-8EF6-F9763AEB8951}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B85A559-AD52-4599-8EF6-F9763AEB8951}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

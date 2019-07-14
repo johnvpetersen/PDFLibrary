@@ -1,27 +1,28 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using iText.Forms;
 using iText.Forms.Fields;
 using iText.Kernel.Pdf;
+using Newtonsoft.Json;
 
 namespace PDFLibrary
 {
     public class Main
     {
 
-        public IDictionary<string, PdfFormField> GetData(string file)
+        public static string GetData(Stream file)
         {
 
-            IDictionary<string, PdfFormField> fields;
 
             using (var reader = new PdfReader(file))
             {
                 using (var doc = new PdfDocument(reader))
                 {
-                    fields = PdfAcroForm.GetAcroForm(doc,false).GetFormFields();
+                    return JsonConvert.SerializeObject(PdfAcroForm.GetAcroForm(doc,false).GetFormFields().ToDictionary(x => x.Key, x => x.Value.GetValueAsString()));
                 }
             }
 
-            return fields;
         }
     }
 }
