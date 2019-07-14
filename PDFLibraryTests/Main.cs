@@ -18,9 +18,11 @@ namespace PDFLibraryTests
 
          var json = PDFLibrary.Main.GetData(stream);
 
+         var expected = json.IndexOf("\"Active\":\"Yes\"",StringComparison.Ordinal) > 0;
+
          var cust = ImmutableClass.Create<Customer>(json, new JsonConverter[] {new BoolConverter()});
  
-
+         Assert.AreEqual(expected,cust.Active);
 
         }
     }
