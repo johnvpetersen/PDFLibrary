@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using ImmutableClassLibrary.Classes;
@@ -10,6 +11,48 @@ namespace PDFLibraryTests
     [TestClass]
     public class Main
     {
+        [TestMethod]
+        public void GetFormat()
+        {
+            var sourcePDF = File.ReadAllBytes("Pdfs\\Test.pdf");
+            PDFLibrary.Main.Test(sourcePDF);
+
+        }
+
+
+
+        [TestMethod]
+        public void CanUpdate2()
+        {
+            var sourcePDF = File.ReadAllBytes("Pdfs\\Test.pdf");
+            var targetPDF = File.ReadAllBytes("Pdfs\\Target.pdf");
+
+            var newPDF = PDFLibrary.Main.UpdatePDF(sourcePDF, targetPDF);
+
+            File.WriteAllBytes($"c:\\temp\\{Guid.NewGuid()}.pdf", newPDF);
+        }
+
+
+
+        [TestMethod]
+        public void CanUpdate()
+        {
+            var pdf = File.ReadAllBytes("Pdfs\\Target.pdf");
+            var fields = new Dictionary<string, string>()
+            {
+                {"FirstName", "John"},
+                {"LastName", "Petersen"},
+                {"Active", "Yes"},
+                {"PointBalance", "100,000"}
+
+            };
+
+            var result = PDFLibrary.Main.UpdatePDF(fields, pdf);
+
+            File.WriteAllBytes($"c:\\temp\\{Guid.NewGuid()}.pdf",result);
+        }
+
+
         [TestMethod]
         public void CanGetFields()
         {
