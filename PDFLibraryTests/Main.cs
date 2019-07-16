@@ -5,70 +5,101 @@ using System.Reflection;
 using ImmutableClassLibrary.Classes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
+using PDFLibrary;
 
 namespace PDFLibraryTests
 {
     [TestClass]
     public class Main
     {
-        [TestMethod]
-        public void GetFormat()
-        {
-            var sourcePDF = File.ReadAllBytes("Pdfs\\Test.pdf");
-            PDFLibrary.Main.Test(sourcePDF);
-
-        }
-
 
 
         [TestMethod]
-        public void CanUpdate2()
+
+        public void CanValidatePDF()
         {
-            var sourcePDF = File.ReadAllBytes("Pdfs\\Test.pdf");
-            var targetPDF = File.ReadAllBytes("Pdfs\\Target.pdf");
+           var  result = PDFLibrary.Main.IsPDF(File.ReadAllBytes("Pdfs\\Test.pdf"));
 
-            var newPDF = PDFLibrary.Main.UpdatePDF(sourcePDF, targetPDF);
+           Assert.IsTrue(result);
 
-            File.WriteAllBytes($"c:\\temp\\{Guid.NewGuid()}.pdf", newPDF);
+           result = PDFLibrary.Main.IsPDF(File.ReadAllBytes("Pdfs\\NotAPDF.txt"));
+
+           Assert.IsFalse(result);
+
+
+
         }
-
-
 
         [TestMethod]
-        public void CanUpdate()
+        public void CanValidate()
         {
-            var pdf = File.ReadAllBytes("Pdfs\\Target.pdf");
-            var fields = new Dictionary<string, string>()
-            {
-                {"FirstName", "John"},
-                {"LastName", "Petersen"},
-                {"Active", "Yes"},
-                {"PointBalance", "100,000"}
+            bool? result;
+            
+            result =   PDFLibrary.Main.Validate(new[] { "FirstNameX" }, File.ReadAllBytes("Pdfs\\Test.pdf"));
 
-            };
+            Assert.AreEqual(false,result);
 
-            var result = PDFLibrary.Main.UpdatePDF(fields, pdf);
+            result = PDFLibrary.Main.Validate(new[] { "FirstName" }, File.ReadAllBytes("Pdfs\\Test.pdf"));
 
-            File.WriteAllBytes($"c:\\temp\\{Guid.NewGuid()}.pdf",result);
+            Assert.AreEqual(true, result);
+
+            result = PDFLibrary.Main.Validate(new string[0] , File.ReadAllBytes("Pdfs\\Test.pdf"));
+
+            Assert.IsNull(result);
+
+            result = PDFLibrary.Main.Validate(null, File.ReadAllBytes("Pdfs\\Test.pdf"));
+
+            Assert.IsNull(result);
+
+            result = PDFLibrary.Main.Validate(new string[1], null);
+
+            Assert.IsNull(result);
+
         }
-
 
         [TestMethod]
         public void CanGetFields()
         {
+         var data = PDFLibrary.Main.GetData(File.ReadAllBytes("Pdfs\\Test.pdf"));
 
-         var stream = new MemoryStream(File.ReadAllBytes("Pdfs\\Test.pdf"));
+         Assert.IsNotNull(data);
+        }
 
-         var json = PDFLibrary.Main.GetData(stream);
+        [TestMethod]
+        public void CanSetFields()
+        {
 
-         var expected = json.IndexOf("\"Active\":\"Yes\"",StringComparison.Ordinal) > 0;
+            var data = new PdfFields()
+            {
+                new PdfField("FirstName","John"),
+                new PdfField("MiddleInitial","V"),
+                new PdfField("LastName","Petersen"),
+                new PdfField("Street","269 Vincent Road"),
+                new PdfField("City","Paoli"),
+                new PdfField("State","PA"),
+                new PdfField("Zip","19301"),
+                new PdfField("Active","Yes"),
+                new PdfField("CustomerSince","01/01/2000"),
+                new PdfField("PointBalance","100000","100,000"),
+                new PdfField("TIN","111111111","111-11-1111")
 
-         var cust = ImmutableClass.Create<Customer>(json, new JsonConverter[] {new BoolConverter()});
- 
-         Assert.AreEqual(expected,cust.Active);
+            };
+            var newPDF = PDFLibrary.Main.SetData(data.ToArray(), File.ReadAllBytes("Pdfs\\Test.pdf"));
+
+            File.WriteAllBytes($"c:\\temp\\{Guid.NewGuid()}.pdf",newPDF);
+
 
         }
+
+
+
+
+
     }
+
+
+
+
 
 
     public class Customer : ImmutableClass
