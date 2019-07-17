@@ -14,6 +14,27 @@ namespace PDFLibraryTests
     {
 
 
+
+        [TestMethod]
+        public void MissingFields()
+        {
+            var result = PDFLibrary.Main.MissingFields(new[] { "FirstName"}, File.ReadAllBytes("Pdfs\\Test.pdf"));
+
+            Assert.AreEqual("[\"MiddleInitial\",\"LastName\",\"Street\",\"City\",\"Zip\",\"State\",\"CustomerSince\",\"PointBalance\",\"Active\",\"TIN\"]",JsonConvert.SerializeObject(result));
+
+        }
+
+
+
+        [TestMethod]
+        public void ExtraFields()
+        {
+          var  result = PDFLibrary.Main.ExtraFields(new[] { "FirstName", "ExtraField" }, File.ReadAllBytes("Pdfs\\Test.pdf"));
+
+          Assert.AreEqual("ExtraField",result[0]);
+        }
+
+
         [TestMethod]
 
         public void CanValidatePDF()
@@ -35,23 +56,23 @@ namespace PDFLibraryTests
         {
             bool? result;
             
-            result =   PDFLibrary.Main.Validate(new[] { "FirstNameX" }, File.ReadAllBytes("Pdfs\\Test.pdf"));
+            result =   PDFLibrary.Main.ValidateFields(new[] { "FirstNameX" }, File.ReadAllBytes("Pdfs\\Test.pdf"));
 
             Assert.AreEqual(false,result);
 
-            result = PDFLibrary.Main.Validate(new[] { "FirstName" }, File.ReadAllBytes("Pdfs\\Test.pdf"));
+            result = PDFLibrary.Main.ValidateFields(new[] { "FirstName" }, File.ReadAllBytes("Pdfs\\Test.pdf"));
 
             Assert.AreEqual(true, result);
 
-            result = PDFLibrary.Main.Validate(new string[0] , File.ReadAllBytes("Pdfs\\Test.pdf"));
+            result = PDFLibrary.Main.ValidateFields(new string[0] , File.ReadAllBytes("Pdfs\\Test.pdf"));
 
             Assert.IsNull(result);
 
-            result = PDFLibrary.Main.Validate(null, File.ReadAllBytes("Pdfs\\Test.pdf"));
+            result = PDFLibrary.Main.ValidateFields(null, File.ReadAllBytes("Pdfs\\Test.pdf"));
 
             Assert.IsNull(result);
 
-            result = PDFLibrary.Main.Validate(new string[1], null);
+            result = PDFLibrary.Main.ValidateFields(new string[1], null);
 
             Assert.IsNull(result);
 

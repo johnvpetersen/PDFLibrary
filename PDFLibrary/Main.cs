@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using iText.Forms;
@@ -12,6 +10,11 @@ namespace PDFLibrary
     {
         public static bool IsPDF(byte[] file)
         {
+
+            if (!validParameters(file))
+                return false;
+
+
             try
             {
                 using (var ms = new MemoryStream(file))
@@ -22,19 +25,59 @@ namespace PDFLibrary
                     }
                 }
             }
-            catch (iText.IO.IOException e)
+            catch (iText.IO.IOException)
             {
                 return false;
-
             }
         }
 
 
-            public static bool? Validate(string[] fields, byte[] pdf)
+        public static string[] MissingFields(string[] fields, byte[] pdf)
+        {
+            if (!validParameters(fields, pdf))
+                return null;
+
+            using (var ms = new MemoryStream(pdf))
+            {
+                using (var reader = new PdfReader(ms))
+                {
+                    using (var doc = new PdfDocument(reader))
+                    {
+                        return PdfAcroForm.GetAcroForm(doc, false).GetFormFields().Keys.ToArray().Except(fields).ToArray();
+                    }
+                }
+
+            }
+
+        }
+
+
+
+        public static string[] ExtraFields(string[] fields, byte[] pdf)
+        {
+            if (!validParameters(fields, pdf))
+                return null;
+
+            using (var ms = new MemoryStream(pdf))
+            {
+                using (var reader = new PdfReader(ms))
+                {
+                    using (var doc = new PdfDocument(reader))
+                    {
+                        return fields.Except(PdfAcroForm.GetAcroForm(doc, false).GetFormFields().Keys).ToArray();
+                    }
+                }
+
+            }
+
+        }
+
+
+        public static bool? ValidateFields(string[] fields, byte[] pdf)
         {
 
-            if (fields == null || pdf == null || fields.Length == 0 || pdf.Length == 0  )
-                return null;
+            if (!validParameters(fields,pdf))
+               return null;
 
 
             using (var ms = new MemoryStream(pdf))
@@ -96,6 +139,26 @@ namespace PDFLibrary
                 }
             }
         }
+
+
+        static bool validParameters(byte[] pdf)
+        {
+            return ( !(pdf == null || pdf.Length == 0));
+        }
+
+
+        static bool validParameters(string[] fields, byte[] pdf)
+        {
+            if (!validParameters(pdf))
+                return false;
+
+            return !((fields == null  || fields.Length == 0 ));
+        }
+
+
+
+
+
     }
 
 
