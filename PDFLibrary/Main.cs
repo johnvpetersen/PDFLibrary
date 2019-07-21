@@ -43,15 +43,15 @@ namespace PDFLibrary
 
         public static string[] ExtraFields(string[] fields, byte[] pdf)
         {
-            if (!validParameters(fields, pdf))
-                return null;
-
-            return fields.Except(getFormFields(pdf).Keys).ToArray();
+            return !validParameters(fields, pdf) ? null : fields.Except(getFormFields(pdf).Keys).ToArray();
         }
 
 
         public static bool? ValidateFields(string[] fields, byte[] pdf)
         {
+
+
+
             if (!validParameters(fields, pdf))
                 return null;
 
