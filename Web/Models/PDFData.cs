@@ -31,6 +31,23 @@ namespace Web.Models
       [DisplayName("TIN")] public string TIN { get => _tin; set => _tin = processTIN(value); }
 
 
+      public string GetFormatedValue(string value)
+      {
+          if (value == "PointBalance")
+              return _pointBalanceFormatted;
+
+          if (value == "TIN")
+              return _tinFormatted;
+
+          if (value =="CustomerSince")
+          return _customerSinceFormatted;
+
+          return null;
+
+      }
+
+
+
       string processPointBalance(string pointBalance)
       {
           int result;

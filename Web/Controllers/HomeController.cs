@@ -1,17 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
-using Newtonsoft.Json;
 using Web.Models;
 
 namespace Web.Controllers
 {
     public class HomeController : Controller
     {
+        private PDFLibraryCaller _pdfCaller;
 
-    
+
+        public HomeController(PDFLibraryCaller pdfCaller)
+        {
+            _pdfCaller = pdfCaller;
+        }
 
 
         public ActionResult Index()
@@ -53,9 +55,7 @@ namespace Web.Controllers
         [HttpPost]
         public ActionResult CreatePDF(PDFData pdfData)
         {
-            TempData["Model"] = pdfData;
-
-            return RedirectToAction("CreatePDF");
+          return new FileContentResult(_pdfCaller.GetPDF(pdfData, Server.MapPath("~/PDFs/Target.pdf")), "application/pdf");
         }
 
 
