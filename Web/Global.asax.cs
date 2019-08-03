@@ -20,7 +20,6 @@ namespace Web
 
             Bootstrapper.Initialise();
 
-           // AppConfig.Configure();
         }
     }
 }

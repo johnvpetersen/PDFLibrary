@@ -1,0 +1,20 @@
+﻿
+@{
+    ViewBag.Title = "UploadPDF";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>UploadPDF</h2>
+
+@using (Html.BeginForm("UploadPDF", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <label for="file">Filename:</label>
+    <input type="file" name="file" id="file" />
+
+    <div class="form-group">
+        <div class="col-lg-offset-7">
+            <input type="submit" value="Upload PDF" class="btn btn-default" />
+        </div>
+    </div>
+
+}

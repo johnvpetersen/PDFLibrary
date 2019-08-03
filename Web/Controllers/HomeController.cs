@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Web;
 using System.Web.Mvc;
 using Web.Models;
 
@@ -16,24 +18,54 @@ namespace Web.Controllers
         }
 
 
-        public ActionResult Index()
+        [HttpPost]
+        public ActionResult UploadPDF(HttpPostedFileBase file)
+        {
+
+            if (file != null && file.ContentLength > 0)
+            {
+                int fileSizeInBytes = file.ContentLength;
+                byte[] pdf = null;
+                using (var br = new BinaryReader(file.InputStream))
+                {
+                    pdf = br.ReadBytes(fileSizeInBytes);
+                }
+
+                var data = PDFLibrary.Main.GetData(pdf);
+
+                var pdfData = new PDFData();
+
+                pdfData.FirstName = data["FirstName"];
+                pdfData.MiddleInitial = data["MiddleInitial"];
+                pdfData.LastName = data["LastName"];
+                pdfData.Street = data["Street"];
+                pdfData.City = data["City"];
+                pdfData.State = data["State"];
+                pdfData.Zip = data["Zip"];
+                pdfData.CustomerSince = data["CustomerSince"];
+                pdfData.PointBalance = data["PointBalance"];
+                pdfData.TIN = data["TIN"];
+                pdfData.Active = data["Active"] == "Yes" ? true : false;
+
+                TempData["Model"] = pdfData;
+
+
+                return RedirectToAction("CreatePDF");
+
+            }
+
+
+
+            return View();
+        }
+
+
+        public ActionResult UploadPDF()
         {
             return View();
         }
 
-        public ActionResult About()
-        {
-            ViewBag.Message = "Your application description page.";
 
-            return View();
-        }
-
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
-
-            return View();
-        }
 
 
         public ActionResult CreatePDF()
