@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Web;
+using Newtonsoft.Json;
 using PDFLibrary;
 using Web.Models;
 
@@ -16,6 +16,26 @@ namespace Web
 
         }
 
+        public PDFData GetData(HttpPostedFileBase file)
+        {
+            int fileSizeInBytes = file.ContentLength;
+            byte[] pdf = null;
+            using (var br = new BinaryReader(file.InputStream))
+            {
+                pdf = br.ReadBytes(fileSizeInBytes);
+            }
+
+
+            var data = PdfMethods.GetData(pdf);
+
+            data["Active"] = data["Active"] == "Yes" ? "true" : "false";
+
+          return  JsonConvert.DeserializeObject<PDFData>(JsonConvert.SerializeObject(data));
+
+        }
+
+
+
         public byte[] GetPDF(PDFData pdfData, string pdfPath)
         {
             var _data = new PdfFields()
@@ -26,15 +46,15 @@ namespace Web
                 new PdfField("Street",pdfData.Street),
                 new PdfField("City",pdfData.City),
                 new PdfField("State",pdfData.State),
-                new PdfField("Zip","19301"),
+                new PdfField("Zip",pdfData.Zip),
                 new PdfField("Active",pdfData.Active ? "Yes": "No"),
-                new PdfField("CustomerSince",pdfData.CustomerSince,pdfData.GetFormatedValue("CustomerSince")),
-                new PdfField("PointBalance",pdfData.PointBalance,pdfData.GetFormatedValue("PointBalance")),
-                new PdfField("TIN",pdfData.TIN,pdfData.GetFormatedValue("TIN"))
+                new PdfField("CustomerSince",pdfData.CustomerSince.Replace("/",""),pdfData.CustomerSince),
+                new PdfField("PointBalance",pdfData.PointBalance.Replace(",",""),pdfData.PointBalance),
+                new PdfField("TIN",pdfData.TIN.Replace("-",""),pdfData.TIN)
 
             };
 
-            return  Main.SetData(_data.ToArray(), System.IO.File.ReadAllBytes(pdfPath));
+            return  PdfMethods.SetData(_data.ToArray(), System.IO.File.ReadAllBytes(pdfPath));
 
         }
 

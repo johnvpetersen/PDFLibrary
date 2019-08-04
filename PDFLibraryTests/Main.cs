@@ -1,19 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using ImmutableClassLibrary.Classes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using PDFLibrary;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
 
 namespace PDFLibraryTests
 {
     [TestClass]
     public class Main
     {
-
-
         [TestMethod]
         public void CanReadStates()
         {
@@ -31,7 +34,7 @@ namespace PDFLibraryTests
         [TestMethod]
         public void MissingFields()
         {
-            var result = PDFLibrary.Main.MissingFields(new[] { "FirstName"}, File.ReadAllBytes("Pdfs\\Test.pdf"));
+            var result = PDFLibrary.PdfMethods.MissingFields(new[] { "FirstName"}, File.ReadAllBytes("Pdfs\\Test.pdf"));
 
             Assert.AreEqual("[\"MiddleInitial\",\"LastName\",\"Street\",\"City\",\"Zip\",\"State\",\"CustomerSince\",\"PointBalance\",\"Active\",\"TIN\"]",JsonConvert.SerializeObject(result));
 
@@ -42,7 +45,7 @@ namespace PDFLibraryTests
         [TestMethod]
         public void ExtraFields()
         {
-          var  result = PDFLibrary.Main.ExtraFields(new[] { "FirstName", "ExtraField" }, File.ReadAllBytes("Pdfs\\Test.pdf"));
+          var  result = PDFLibrary.PdfMethods.ExtraFields(new[] { "FirstName", "ExtraField" }, File.ReadAllBytes("Pdfs\\Test.pdf"));
 
           Assert.AreEqual("ExtraField",result[0]);
         }
@@ -52,11 +55,11 @@ namespace PDFLibraryTests
 
         public void CanValidatePDF()
         {
-           var  result = PDFLibrary.Main.IsPDF(File.ReadAllBytes("Pdfs\\Test.pdf"));
+           var  result = PDFLibrary.PdfMethods.IsPDF(File.ReadAllBytes("Pdfs\\Test.pdf"));
 
            Assert.IsTrue(result);
 
-           result = PDFLibrary.Main.IsPDF(File.ReadAllBytes("Pdfs\\NotAPDF.txt"));
+           result = PDFLibrary.PdfMethods.IsPDF(File.ReadAllBytes("Pdfs\\NotAPDF.txt"));
 
            Assert.IsFalse(result);
 
@@ -69,23 +72,23 @@ namespace PDFLibraryTests
         {
             bool? result;
             
-            result =   PDFLibrary.Main.ValidateFields(new[] { "FirstNameX" }, File.ReadAllBytes("Pdfs\\Test.pdf"));
+            result =   PDFLibrary.PdfMethods.ValidateFields(new[] { "FirstNameX" }, File.ReadAllBytes("Pdfs\\Test.pdf"));
 
             Assert.AreEqual(false,result);
 
-            result = PDFLibrary.Main.ValidateFields(new[] { "FirstName" }, File.ReadAllBytes("Pdfs\\Test.pdf"));
+            result = PDFLibrary.PdfMethods.ValidateFields(new[] { "FirstName" }, File.ReadAllBytes("Pdfs\\Test.pdf"));
 
             Assert.AreEqual(true, result);
 
-            result = PDFLibrary.Main.ValidateFields(new string[0] , File.ReadAllBytes("Pdfs\\Test.pdf"));
+            result = PDFLibrary.PdfMethods.ValidateFields(new string[0] , File.ReadAllBytes("Pdfs\\Test.pdf"));
 
             Assert.IsNull(result);
 
-            result = PDFLibrary.Main.ValidateFields(null, File.ReadAllBytes("Pdfs\\Test.pdf"));
+            result = PDFLibrary.PdfMethods.ValidateFields(null, File.ReadAllBytes("Pdfs\\Test.pdf"));
 
             Assert.IsNull(result);
 
-            result = PDFLibrary.Main.ValidateFields(new string[1], null);
+            result = PDFLibrary.PdfMethods.ValidateFields(new string[1], null);
 
             Assert.IsNull(result);
 
@@ -94,7 +97,7 @@ namespace PDFLibraryTests
         [TestMethod]
         public void CanGetFields()
         {
-         var data = PDFLibrary.Main.GetData(File.ReadAllBytes("Pdfs\\Test.pdf"));
+         var data = PDFLibrary.PdfMethods.GetData(File.ReadAllBytes("Pdfs\\Test.pdf"));
 
          Assert.IsNotNull(data);
         }
@@ -118,7 +121,7 @@ namespace PDFLibraryTests
                 new PdfField("TIN","111111111","111-11-1111")
 
             };
-            var newPDF = PDFLibrary.Main.SetData(data.ToArray(), File.ReadAllBytes("Pdfs\\Test.pdf"));
+            var newPDF = PDFLibrary.PdfMethods.SetData(data.ToArray(), File.ReadAllBytes("Pdfs\\Test.pdf"));
 
             File.WriteAllBytes($"c:\\temp\\{Guid.NewGuid()}.pdf",newPDF);
 

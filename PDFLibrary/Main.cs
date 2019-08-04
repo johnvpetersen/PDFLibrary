@@ -1,13 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using iText.Forms;
 using iText.Forms.Fields;
 using iText.Kernel.Pdf;
 
 namespace PDFLibrary
 {
-    public class Main
+    public class PdfMethods
+
     {
         public static bool IsPDF(byte[] file)
         {
@@ -123,6 +125,8 @@ namespace PDFLibrary
     }
 
 
+
+
     public class PdfFields : List<PdfField>
     {
     }
@@ -141,4 +145,5 @@ namespace PDFLibrary
         public string Value { get; }
         public string DisplayValue { get; }
     }
+
 }
