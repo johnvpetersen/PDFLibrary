@@ -47,7 +47,7 @@ namespace Web.Controllers
         [HttpPost]
         public ActionResult CreatePDF(PDFData pdfData, HttpPostedFileBase file)
         {
-            if (file == null || file.ContentLength == 0)
+            if (!_pdfCaller.IsPDF(file))
                 return (View(pdfData));
 
 

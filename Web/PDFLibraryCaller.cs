@@ -29,6 +29,23 @@ namespace Web
 
         }
 
+        public bool IsPDF(HttpPostedFileBase file)
+        {
+
+            if (file == null || file.ContentLength == 0)
+                return false;
+
+            int fileSizeInBytes = file.ContentLength;
+            byte[] pdf = null;
+            using (var br = new BinaryReader(file.InputStream))
+            {
+                pdf = br.ReadBytes(fileSizeInBytes);
+            }
+
+
+            return PdfMethods.IsPDF(pdf);
+        }
+
         public byte[] GetPDF(PDFData pdfData, HttpPostedFileBase file)
         {
             int fileSizeInBytes = file.ContentLength;
