@@ -45,7 +45,7 @@ namespace Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult CreatePDF(PDFData pdfData)
+        public ActionResult CreatePDF(PDFData pdfData, HttpPostedFileBase file)
         {
           return new FileContentResult(_pdfCaller.GetPDF(pdfData, Server.MapPath("~/PDFs/Target.pdf")), "application/pdf");
         }

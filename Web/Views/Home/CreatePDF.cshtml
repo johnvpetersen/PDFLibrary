@@ -11,7 +11,7 @@
 
 <h2>CreatePDF</h2>
 
-@using (Html.BeginForm("CreatePDF", "Home", FormMethod.Post, new { target = "_blank" }))
+@using (Html.BeginForm("CreatePDF", "Home", FormMethod.Post, new { target = "_blank", enctype = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()
     
@@ -55,6 +55,9 @@
                 @Html.LabelFor(model => model.CustomerSince, htmlAttributes: new { @class = "control-label",@style = "vertical-align: middle;" })
                 @Html.EditorFor(model => model.CustomerSince, new { htmlAttributes = new { @class = "form-control datepicker", @style = "width: 100px;", autocomplete = "off" } })
             </div>
+            
+            <label for="file">Filename:</label>
+            <input type="file" name="file" id="file" />
 
 
         </div>
