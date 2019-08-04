@@ -8,7 +8,6 @@ namespace Web.Controllers
     {
         private PDFLibraryCaller _pdfCaller;
 
-
         public HomeController(PDFLibraryCaller pdfCaller)
         {
             _pdfCaller = pdfCaller;
@@ -21,12 +20,10 @@ namespace Web.Controllers
             if (file != null && file.ContentLength > 0)
             {
                 return  RedirectToAction("DisplayPDFData", _pdfCaller.GetData(file));
-
             }
 
             return View();
         }
-
 
         public ActionResult UploadPDF()
         {
@@ -35,19 +32,16 @@ namespace Web.Controllers
 
         public ActionResult DisplayPDFData(PDFData pdfData)
         {
-            TempData["States"] = DropDownListData.SetSelectedState(pdfData.State, DropDownListData.States);
-
+            if (pdfData == null)
+                return RedirectToAction("CreatePDF");
 
             return View("CreatePDF", pdfData);
         }
 
-
         public ActionResult CreatePDF()
         {
 
-            TempData["States"] = DropDownListData.States;
-
-            return  View();
+            return  View(new PDFData());
         }
 
         [HttpPost]

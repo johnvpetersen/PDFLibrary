@@ -40,7 +40,7 @@
                 @Html.LabelFor(model => model.City, htmlAttributes: new { @class = "control-label col-md-1", autocomplete = "off" })
                 @Html.EditorFor(model => model.City, new { htmlAttributes = new { @class = "form-control", @style = "width: 150px;", autocomplete = "off" } })
                 @Html.LabelFor(model => model.State, htmlAttributes: new { @class = "control-label" })
-                @Html.DropDownList("State",(IEnumerable<SelectListItem>)TempData["States"], new { htmlAttributes = new { @class = "form-control",  autocomplete = "off" } })
+                @Html.DropDownList("State", DropDownListData.SetSelectedState(Model.State,DropDownListData.States) , new { htmlAttributes = new { @class = "form-control",  autocomplete = "off" } })
 
                 @Html.LabelFor(model => model.Zip, htmlAttributes: new { @class = "control-label" })
                 @Html.EditorFor(model => model.Zip, new { htmlAttributes = new { @class = "form-control", @style = "width: 75px;", autocomplete = "off" } })
