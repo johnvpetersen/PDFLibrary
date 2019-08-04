@@ -47,7 +47,11 @@ namespace Web.Controllers
         [HttpPost]
         public ActionResult CreatePDF(PDFData pdfData, HttpPostedFileBase file)
         {
-          return new FileContentResult(_pdfCaller.GetPDF(pdfData, Server.MapPath("~/PDFs/Target.pdf")), "application/pdf");
+            if (file == null || file.ContentLength == 0)
+                return (View(pdfData));
+
+
+            return new FileContentResult(_pdfCaller.GetPDF(pdfData, file), "application/pdf");
         }
 
     }

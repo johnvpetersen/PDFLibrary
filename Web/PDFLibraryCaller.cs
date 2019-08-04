@@ -29,11 +29,16 @@ namespace Web
 
         }
 
-        public byte[] GetPDF(PDFData pdfData, string pdfPath)
+        public byte[] GetPDF(PDFData pdfData, HttpPostedFileBase file)
         {
-            var file = System.IO.File.ReadAllBytes(pdfPath);
+            int fileSizeInBytes = file.ContentLength;
+            byte[] pdf = null;
+            using (var br = new BinaryReader(file.InputStream))
+            {
+                pdf = br.ReadBytes(fileSizeInBytes);
+            }
 
-            if (!PdfMethods.IsPDF(file))
+            if (!PdfMethods.IsPDF(pdf))
                 return null;
 
 
@@ -54,7 +59,7 @@ namespace Web
 
             };
 
-            return  PdfMethods.SetData(_data.ToArray(), file);
+            return  PdfMethods.SetData(_data.ToArray(), pdf);
 
         }
     }
