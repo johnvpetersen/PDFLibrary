@@ -8,17 +8,8 @@ namespace Web
 {
     public class PDFLibraryCaller
     {
-        public PDFData GetData(HttpPostedFileBase file)
+        public PDFData GetData(byte[] pdf)
         {
-            int fileSizeInBytes = file.ContentLength;
-            byte[] pdf = null;
-            using (var br = new BinaryReader(file.InputStream))
-            {
-                pdf = br.ReadBytes(fileSizeInBytes);
-            }
-
-            if (!PdfMethods.IsPDF(pdf))
-                return new PDFData();
 
 
             var data = PdfMethods.GetData(pdf);
@@ -29,25 +20,12 @@ namespace Web
 
         }
 
-        public bool IsPDF(HttpPostedFileBase file)
-        {
 
+        public byte[] GetFileBytes(HttpPostedFileBase file)
+        {
             if (file == null || file.ContentLength == 0)
-                return false;
+                return null;
 
-            int fileSizeInBytes = file.ContentLength;
-            byte[] pdf = null;
-            using (var br = new BinaryReader(file.InputStream))
-            {
-                pdf = br.ReadBytes(fileSizeInBytes);
-            }
-
-
-            return PdfMethods.IsPDF(pdf);
-        }
-
-        public byte[] GetPDF(PDFData pdfData, HttpPostedFileBase file)
-        {
             int fileSizeInBytes = file.ContentLength;
             byte[] pdf = null;
             using (var br = new BinaryReader(file.InputStream))
@@ -58,6 +36,13 @@ namespace Web
             if (!PdfMethods.IsPDF(pdf))
                 return null;
 
+            return pdf;
+
+        }
+
+
+        public byte[] GetPDF(PDFData pdfData, byte[] pdf)
+        {
 
             var _data = new PdfFields()
             {
@@ -69,15 +54,26 @@ namespace Web
                 new PdfField("State",pdfData.State),
                 new PdfField("Zip",pdfData.Zip),
 
-                new PdfField("Active",pdfData.Active ? "Yes": "No"),
-                new PdfField("CustomerSince",pdfData.CustomerSince.Replace("/",""),pdfData.CustomerSince),
-                new PdfField("PointBalance",pdfData.PointBalance.Replace(",",""),pdfData.PointBalance),
-                new PdfField("TIN",pdfData.TIN.Replace("-",""),pdfData.TIN)
+                new PdfField("Active",pdfData.Active ? "Yes": null),
+                new PdfField("CustomerSince", stripDelimter(pdfData.CustomerSince,"/"),pdfData.CustomerSince),
+                new PdfField("PointBalance",stripDelimter(pdfData.PointBalance,","),pdfData.PointBalance),
+                new PdfField("TIN", stripDelimter(pdfData.TIN,"-"),pdfData.TIN)
 
             };
 
             return  PdfMethods.SetData(_data.ToArray(), pdf);
 
         }
+
+        string stripDelimter(string value, string delimiter)
+        {
+            if (string.IsNullOrEmpty(value))
+                return string.Empty;
+
+            return value.Replace(delimiter,string.Empty);
+        }
+
+
+
     }
 }

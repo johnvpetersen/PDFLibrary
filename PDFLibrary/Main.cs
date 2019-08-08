@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using iText.Forms;
 using iText.Forms.Fields;
 using iText.Kernel.Pdf;
@@ -13,9 +12,9 @@ namespace PDFLibrary
     {
         public static bool IsPDF(byte[] file)
         {
-            if (!validParameters(file))
-                return false;
 
+            if (file == null || file.Length == 0)
+                return false;
 
             try
             {
@@ -36,11 +35,7 @@ namespace PDFLibrary
 
         public static string[] MissingFields(string[] fields, byte[] pdf)
         {
-            if (!validParameters(fields, pdf))
-                return null;
-
-            return getFormFields(pdf).Keys.ToArray().Except(fields).ToArray();
-
+            return !validParameters(fields, pdf) ? null : getFormFields(pdf).Keys.ToArray().Except(fields).ToArray();
         }
 
         public static string[] ExtraFields(string[] fields, byte[] pdf)
@@ -63,12 +58,19 @@ namespace PDFLibrary
 
         public static Dictionary<string, string> GetData(byte[] pdf)
         {
+            if (!IsPDF(pdf))
+                return null;
+
+
             return getFormFields(pdf).ToDictionary(x => x.Key, x => x.Value.GetValueAsString());
         }
 
 
         public static byte[] SetData(PdfField[] fields, byte[] pdf)
         {
+            if (!IsPDF(pdf))
+                return null;
+
             using (var ms = new MemoryStream())
             {
                 using (var doc = new PdfDocument(new PdfReader(new MemoryStream(pdf)), new PdfWriter(ms)))
@@ -76,7 +78,7 @@ namespace PDFLibrary
                 {
                     var form = PdfAcroForm.GetAcroForm(doc, true);
                     var formFields = form.GetFormFields();
-                    foreach (var field in fields)
+                    foreach (var field in fields.Where(x => !string.IsNullOrEmpty(x.Value) ))
                     {
                         if (string.IsNullOrEmpty(field.DisplayValue))
                         {
@@ -96,6 +98,8 @@ namespace PDFLibrary
 
         static IDictionary<string, PdfFormField> getFormFields(byte[] pdf)
         {
+
+
             using (var ms = new MemoryStream(pdf))
             {
                 using (var reader = new PdfReader(ms))
@@ -109,15 +113,11 @@ namespace PDFLibrary
 
         }
 
-        static bool validParameters(byte[] pdf)
-        {
-            return (!(pdf == null || pdf.Length == 0));
-        }
-
+        
 
         static bool validParameters(string[] fields, byte[] pdf)
         {
-            if (!validParameters(pdf))
+            if (!IsPDF(pdf))
                 return false;
 
             return !((fields == null || fields.Length == 0));

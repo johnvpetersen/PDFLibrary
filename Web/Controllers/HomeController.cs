@@ -17,12 +17,13 @@ namespace Web.Controllers
         public ActionResult UploadPDF(HttpPostedFileBase file)
         {
 
-            if (file != null && file.ContentLength > 0)
-            {
-                return  RedirectToAction("DisplayPDFData", _pdfCaller.GetData(file));
-            }
+            var pdf = _pdfCaller.GetFileBytes(file);
+            if (pdf == null)
+                return View();
 
-            return View();
+
+            return  RedirectToAction("DisplayPDFData", _pdfCaller.GetData(pdf));
+
         }
 
         public ActionResult UploadPDF()
@@ -47,11 +48,14 @@ namespace Web.Controllers
         [HttpPost]
         public ActionResult CreatePDF(PDFData pdfData, HttpPostedFileBase file)
         {
-            if (!_pdfCaller.IsPDF(file))
-                return (View(pdfData));
+
+            var pdf = _pdfCaller.GetFileBytes(file);
+            if (pdf == null)
+                return View(pdfData);
 
 
-            return new FileContentResult(_pdfCaller.GetPDF(pdfData, file), "application/pdf");
+
+            return new FileContentResult(_pdfCaller.GetPDF(pdfData, pdf), "application/pdf");
         }
 
     }

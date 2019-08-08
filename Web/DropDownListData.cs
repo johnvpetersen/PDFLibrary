@@ -12,7 +12,7 @@ namespace Web
         public static List<SelectListItem> SetSelectedState(string state, List<SelectListItem> states)
         {
 
-            if (state != null)
+            if (!string.IsNullOrEmpty(state))
 
                 states.First(x => x.Value == state).Selected = true;
 
@@ -22,6 +22,7 @@ namespace Web
 
         static List<SelectListItem> _states = new List<SelectListItem>()
     {
+        new SelectListItem() { Text = "Choose...", Value = ""},
         new SelectListItem() { Text = "Alabama", Value = "AL"},
         new SelectListItem() { Text = "Alaska", Value = "AK"},
         new SelectListItem() { Text = "Arizona", Value = "AZ"},

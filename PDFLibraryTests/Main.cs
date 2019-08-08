@@ -1,16 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using ImmutableClassLibrary.Classes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using PDFLibrary;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 
 namespace PDFLibraryTests
 {
@@ -18,26 +12,11 @@ namespace PDFLibraryTests
     public class Main
     {
         [TestMethod]
-        public void CanReadStates()
-        {
-            var states =
-                "{    \"AL\": \"Alabama\",    \"AK\": \"Alaska\",    \"AS\": \"American Samoa\",    \"AZ\": \"Arizona\",    \"AR\": \"Arkansas\",    \"CA\": \"California\",    \"CO\": \"Colorado\",    \"CT\": \"Connecticut\",    \"DE\": \"Delaware\",    \"DC\": \"District Of Columbia\",    \"FM\": \"Federated States Of Micronesia\",    \"FL\": \"Florida\",    \"GA\": \"Georgia\",    \"GU\": \"Guam\",    \"HI\": \"Hawaii\",    \"ID\": \"Idaho\",    \"IL\": \"Illinois\",    \"IN\": \"Indiana\",    \"IA\": \"Iowa\",    \"KS\": \"Kansas\",    \"KY\": \"Kentucky\",    \"LA\": \"Louisiana\",    \"ME\": \"Maine\",    \"MH\": \"Marshall Islands\",    \"MD\": \"Maryland\",    \"MA\": \"Massachusetts\",    \"MI\": \"Michigan\",    \"MN\": \"Minnesota\",    \"MS\": \"Mississippi\",    \"MO\": \"Missouri\",    \"MT\": \"Montana\",    \"NE\": \"Nebraska\",    \"NV\": \"Nevada\",    \"NH\": \"New Hampshire\",    \"NJ\": \"New Jersey\",    \"NM\": \"New Mexico\",    \"NY\": \"New York\",    \"NC\": \"North Carolina\",    \"ND\": \"North Dakota\",    \"MP\": \"Northern Mariana Islands\",    \"OH\": \"Ohio\",    \"OK\": \"Oklahoma\",    \"OR\": \"Oregon\",    \"PW\": \"Palau\",    \"PA\": \"Pennsylvania\",    \"PR\": \"Puerto Rico\",    \"RI\": \"Rhode Island\",    \"SC\": \"South Carolina\",    \"SD\": \"South Dakota\",    \"TN\": \"Tennessee\",    \"TX\": \"Texas\",    \"UT\": \"Utah\",    \"VT\": \"Vermont\",    \"VI\": \"Virgin Islands\",    \"VA\": \"Virginia\",    \"WA\": \"Washington\",    \"WV\": \"West Virginia\",    \"WI\": \"Wisconsin\",    \"WY\": \"Wyoming\"}";
-
-
-            var x = JsonConvert.DeserializeObject<Dictionary<string,string>>(states);
-
-
-        }
-
-
-
-        [TestMethod]
         public void MissingFields()
         {
             var result = PDFLibrary.PdfMethods.MissingFields(new[] { "FirstName"}, File.ReadAllBytes("Pdfs\\Test.pdf"));
 
             Assert.AreEqual("[\"MiddleInitial\",\"LastName\",\"Street\",\"City\",\"Zip\",\"State\",\"CustomerSince\",\"PointBalance\",\"Active\",\"TIN\"]",JsonConvert.SerializeObject(result));
-
         }
 
 
@@ -53,7 +32,7 @@ namespace PDFLibraryTests
 
         [TestMethod]
 
-        public void CanValidatePDF()
+        public void CanValidateIsAPDF()
         {
            var  result = PDFLibrary.PdfMethods.IsPDF(File.ReadAllBytes("Pdfs\\Test.pdf"));
 
