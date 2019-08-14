@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PDFLibrary;
 
@@ -14,20 +13,6 @@ namespace PDFLibraryTests
         private static string _output = $"Output\\{Guid.NewGuid().ToString()}";
         private string _file = string.Empty;
 
-        [ClassInitialize]
-        public static void ClassInit(TestContext context)
-        {
-            var result = Directory.CreateDirectory(_output);
-            if (!result.Exists)
-                throw new DirectoryNotFoundException("Error creating test output directory.");
-
-            if (!File.Exists(_notAPDF))
-                throw new FileNotFoundException("File pdfs\\notapdf.txt does not exist.");
-
-            if (!File.Exists(_testPDF))
-                throw new FileNotFoundException("File pdfs\\test.pdf does not exist.");
-
-        }
 
         [TestInitialize]
         public void TestInit()
@@ -37,9 +22,9 @@ namespace PDFLibraryTests
 
 
         [TestMethod]
-        public void MissingFields()
+        public void CanDetectMissingFields()
         {
-            var result = PdfMethods.MissingFields(new[] { "FirstName"}, File.ReadAllBytes(_testPDF));
+            var result = PdfMethods.MissingFields(new[] { "FirstName"}, PdfMethods.Read(_testPDF));
 
             Assert.AreEqual("[\"MiddleInitial\",\"LastName\",\"Street\",\"City\",\"Zip\",\"State\",\"CustomerSince\",\"PointBalance\",\"Active\",\"TIN\"]",PdfMethods.ToJson(result));
         }
@@ -47,9 +32,9 @@ namespace PDFLibraryTests
 
 
         [TestMethod]
-        public void ExtraFields()
+        public void CanDetectExtraFields()
         {
-          var  result = PdfMethods.ExtraFields(new[] { "FirstName", "ExtraField" }, File.ReadAllBytes(_testPDF));
+          var  result = PdfMethods.ExtraFields(new[] { "FirstName", "ExtraField" }, PdfMethods.Read(_testPDF));
 
           Assert.AreEqual("ExtraField",result[0]);
         }
@@ -59,11 +44,11 @@ namespace PDFLibraryTests
 
         public void CanValidateIsAPDF()
         {
-           var  result = PdfMethods.IsPDF(File.ReadAllBytes(_testPDF));
+           var  result = PdfMethods.IsPDF(PdfMethods.Read(_testPDF));
 
            Assert.IsTrue(result);
 
-           result = PdfMethods.IsPDF(File.ReadAllBytes(_notAPDF));
+           result = PdfMethods.IsPDF(PdfMethods.Read(_notAPDF));
 
            Assert.IsFalse(result);
 
@@ -72,23 +57,23 @@ namespace PDFLibraryTests
         }
 
         [TestMethod]
-        public void CanValidate()
+        public void CanValidateFields()
         {
             bool? result;
             
-            result =   PdfMethods.ValidateFields(new[] { "FirstNameX" }, File.ReadAllBytes(_testPDF));
+            result =   PdfMethods.ValidateFields(new[] { "FirstNameX" }, PdfMethods.Read(_testPDF));
 
             Assert.AreEqual(false,result);
 
-            result = PdfMethods.ValidateFields(new[] { "FirstName" }, File.ReadAllBytes(_testPDF));
+            result = PdfMethods.ValidateFields(new[] { "FirstName" }, PdfMethods.Read(_testPDF));
 
             Assert.AreEqual(true, result);
 
-            result = PdfMethods.ValidateFields(new string[0] , File.ReadAllBytes(_testPDF));
+            result = PdfMethods.ValidateFields(new string[0] , PdfMethods.Read(_testPDF));
 
             Assert.IsNull(result);
 
-            result = PdfMethods.ValidateFields(null, File.ReadAllBytes(_testPDF));
+            result = PdfMethods.ValidateFields(null, PdfMethods.Read(_testPDF));
 
             Assert.IsNull(result);
 
@@ -101,7 +86,7 @@ namespace PDFLibraryTests
         [TestMethod]
         public void CanGetFields()
         {
-         var data = PdfMethods.GetData(File.ReadAllBytes(_testPDF));
+         var data = PdfMethods.GetData(PdfMethods.Read(_testPDF));
 
          Assert.IsNotNull(data);
         }
@@ -124,13 +109,14 @@ namespace PDFLibraryTests
                 new PdfField("TIN","111111111","111-11-1111")
 
             };
-            var newPDF = PdfMethods.SetData(data.ToArray(), File.ReadAllBytes(_testPDF));
+            var newPDF = PdfMethods.SetData(data.ToArray(), PdfMethods.Read(_testPDF));
 
-            File.WriteAllBytes(_file,newPDF);
 
-             File.ReadAllBytes(_file);
+          var bytesWritten =   PdfMethods.Write(_file, newPDF);
 
-             Assert.AreEqual(newPDF.Length, File.ReadAllBytes(_file).Length);
+
+
+             Assert.AreEqual(newPDF.Length, bytesWritten.Length);
 
         }
 

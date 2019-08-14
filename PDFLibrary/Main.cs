@@ -17,6 +17,20 @@ namespace PDFLibrary
             return JsonConvert.SerializeObject(value);
         }
 
+        public static byte[] Write(string path, byte[] bytes)
+        {
+            File.WriteAllBytes(path, bytes);
+
+            return Read(path);
+            
+        }
+
+        public static byte[] Read(string path)
+        {
+            return File.ReadAllBytes(path);
+
+        }
+
         public static bool IsPDF(byte[] file)
         {
 
