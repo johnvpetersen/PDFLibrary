@@ -1,7 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Reflection;
-using ImmutableClassLibrary.Classes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using PDFLibrary;
@@ -11,10 +9,38 @@ namespace PDFLibraryTests
     [TestClass]
     public class Main
     {
+
+        private const string _notAPDF = "Pdfs\\NotAPDF.txt";
+        private const string _testPDF = "Pdfs\\Test.pdf";
+        private static string _output = $"Output\\{Guid.NewGuid().ToString()}";
+        private string _file = string.Empty;
+
+        [ClassInitialize]
+        public static void ClassInit(TestContext context)
+        {
+            var result = Directory.CreateDirectory(_output);
+            if (!result.Exists)
+                throw new DirectoryNotFoundException("Error creating test output directory.");
+
+            if (!File.Exists(_notAPDF))
+                throw new FileNotFoundException("File pdfs\\notapdf.txt does not exist.");
+
+            if (!File.Exists(_testPDF))
+                throw new FileNotFoundException("File pdfs\\test.pdf does not exist.");
+
+        }
+
+        [TestInitialize]
+        public void TestInit()
+        {
+            _file = $"{_output}\\{Guid.NewGuid()}.pdf";
+        }
+
+
         [TestMethod]
         public void MissingFields()
         {
-            var result = PDFLibrary.PdfMethods.MissingFields(new[] { "FirstName"}, File.ReadAllBytes("Pdfs\\Test.pdf"));
+            var result = PdfMethods.MissingFields(new[] { "FirstName"}, File.ReadAllBytes(_testPDF));
 
             Assert.AreEqual("[\"MiddleInitial\",\"LastName\",\"Street\",\"City\",\"Zip\",\"State\",\"CustomerSince\",\"PointBalance\",\"Active\",\"TIN\"]",JsonConvert.SerializeObject(result));
         }
@@ -24,7 +50,7 @@ namespace PDFLibraryTests
         [TestMethod]
         public void ExtraFields()
         {
-          var  result = PDFLibrary.PdfMethods.ExtraFields(new[] { "FirstName", "ExtraField" }, File.ReadAllBytes("Pdfs\\Test.pdf"));
+          var  result = PdfMethods.ExtraFields(new[] { "FirstName", "ExtraField" }, File.ReadAllBytes(_testPDF));
 
           Assert.AreEqual("ExtraField",result[0]);
         }
@@ -34,11 +60,11 @@ namespace PDFLibraryTests
 
         public void CanValidateIsAPDF()
         {
-           var  result = PDFLibrary.PdfMethods.IsPDF(File.ReadAllBytes("Pdfs\\Test.pdf"));
+           var  result = PdfMethods.IsPDF(File.ReadAllBytes(_testPDF));
 
            Assert.IsTrue(result);
 
-           result = PDFLibrary.PdfMethods.IsPDF(File.ReadAllBytes("Pdfs\\NotAPDF.txt"));
+           result = PdfMethods.IsPDF(File.ReadAllBytes(_notAPDF));
 
            Assert.IsFalse(result);
 
@@ -51,23 +77,23 @@ namespace PDFLibraryTests
         {
             bool? result;
             
-            result =   PDFLibrary.PdfMethods.ValidateFields(new[] { "FirstNameX" }, File.ReadAllBytes("Pdfs\\Test.pdf"));
+            result =   PdfMethods.ValidateFields(new[] { "FirstNameX" }, File.ReadAllBytes(_testPDF));
 
             Assert.AreEqual(false,result);
 
-            result = PDFLibrary.PdfMethods.ValidateFields(new[] { "FirstName" }, File.ReadAllBytes("Pdfs\\Test.pdf"));
+            result = PdfMethods.ValidateFields(new[] { "FirstName" }, File.ReadAllBytes(_testPDF));
 
             Assert.AreEqual(true, result);
 
-            result = PDFLibrary.PdfMethods.ValidateFields(new string[0] , File.ReadAllBytes("Pdfs\\Test.pdf"));
+            result = PdfMethods.ValidateFields(new string[0] , File.ReadAllBytes(_testPDF));
 
             Assert.IsNull(result);
 
-            result = PDFLibrary.PdfMethods.ValidateFields(null, File.ReadAllBytes("Pdfs\\Test.pdf"));
+            result = PdfMethods.ValidateFields(null, File.ReadAllBytes(_testPDF));
 
             Assert.IsNull(result);
 
-            result = PDFLibrary.PdfMethods.ValidateFields(new string[1], null);
+            result = PdfMethods.ValidateFields(new string[1], null);
 
             Assert.IsNull(result);
 
@@ -76,7 +102,7 @@ namespace PDFLibraryTests
         [TestMethod]
         public void CanGetFields()
         {
-         var data = PDFLibrary.PdfMethods.GetData(File.ReadAllBytes("Pdfs\\Test.pdf"));
+         var data = PdfMethods.GetData(File.ReadAllBytes(_testPDF));
 
          Assert.IsNotNull(data);
         }
@@ -84,7 +110,6 @@ namespace PDFLibraryTests
         [TestMethod]
         public void CanSetFields()
         {
-
             var data = new PdfFields()
             {
                 new PdfField("FirstName","John"),
@@ -100,181 +125,16 @@ namespace PDFLibraryTests
                 new PdfField("TIN","111111111","111-11-1111")
 
             };
-            var newPDF = PDFLibrary.PdfMethods.SetData(data.ToArray(), File.ReadAllBytes("Pdfs\\Test.pdf"));
+            var newPDF = PdfMethods.SetData(data.ToArray(), File.ReadAllBytes(_testPDF));
 
-            File.WriteAllBytes($"c:\\temp\\{Guid.NewGuid()}.pdf",newPDF);
+            File.WriteAllBytes(_file,newPDF);
 
+             File.ReadAllBytes(_file);
+
+             Assert.AreEqual(newPDF.Length, File.ReadAllBytes(_file).Length);
 
         }
-
-
-
-
 
     }
-
-
-
-
-
-
-    public class Customer : ImmutableClass
-    {
-        private string _firstName;
-
-        public string FirstName
-        {
-            get => _firstName;
-            set => Setter(
-                MethodBase
-                    .GetCurrentMethod()
-                    .Name
-                    .Substring(4),
-                value,
-                ref _firstName);
-        }
-
-        private string _middleInitial;
-
-        public string MiddleInitial
-        {
-            get => _middleInitial;
-            set => Setter(
-                MethodBase
-                    .GetCurrentMethod()
-                    .Name
-                    .Substring(4),
-                value,
-                ref _middleInitial);
-        }
-
-
-        private string _lastName;
-
-        public string LastName
-        {
-            get => _lastName;
-            set => Setter(
-                MethodBase
-                    .GetCurrentMethod()
-                    .Name
-                    .Substring(4),
-                value,
-                ref _lastName);
-        }
-
-        private string _street;
-
-        public string Street
-        {
-            get => _street;
-            set => Setter(
-                MethodBase
-                    .GetCurrentMethod()
-                    .Name
-                    .Substring(4),
-                value,
-                ref _street);
-        }
-
-        private string _state;
-
-        public string State
-        {
-            get => _state;
-            set => Setter(
-                MethodBase
-                    .GetCurrentMethod()
-                    .Name
-                    .Substring(4),
-                value,
-                ref _state);
-        }
-
-        private string _zip;
-
-        public string Zip
-        {
-            get => _zip;
-            set => Setter(
-                MethodBase
-                    .GetCurrentMethod()
-                    .Name
-                    .Substring(4),
-                value,
-                ref _zip);
-        }
-
-
-        private DateTime _customerSince;
-
-        public DateTime CustomerSince
-        {
-            get => _customerSince;
-            set => Setter(
-                MethodBase
-                    .GetCurrentMethod()
-                    .Name
-                    .Substring(4),
-                value,
-                ref _customerSince);
-        }
-
-        private bool _active;
-
-        public bool Active
-        {
-            get => _active;
-            set => Setter(
-                MethodBase
-                    .GetCurrentMethod()
-                    .Name
-                    .Substring(4),
-                value,
-                ref _active);
-        }
-
-        private Int32 _pointBalance;
-
-        public Int32 PointBalance
-        {
-            get => _pointBalance;
-            set => Setter(
-                MethodBase
-                    .GetCurrentMethod()
-                    .Name
-                    .Substring(4),
-                value,
-                ref _pointBalance);
-        }
-
-
-
-    }
-
-
-    public class BoolConverter : JsonConverter
-    {
-        public override bool CanWrite { get { return false; } }
-
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            return  reader.Value.ToString().ToLower().Trim() == "yes";
-
-
-
-        }
-
-        public override bool CanConvert(Type objectType)
-        {
-            return (objectType == typeof(Boolean));
-        }
-    }
-
 
 }
