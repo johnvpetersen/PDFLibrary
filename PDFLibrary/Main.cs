@@ -4,12 +4,19 @@ using System.Linq;
 using iText.Forms;
 using iText.Forms.Fields;
 using iText.Kernel.Pdf;
+using Newtonsoft.Json;
 
 namespace PDFLibrary
 {
     public class PdfMethods
 
     {
+
+        public static string ToJson(object value)
+        {
+            return JsonConvert.SerializeObject(value);
+        }
+
         public static bool IsPDF(byte[] file)
         {
 
@@ -31,7 +38,6 @@ namespace PDFLibrary
                 return false;
             }
         }
-
 
         public static string[] MissingFields(string[] fields, byte[] pdf)
         {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
 using PDFLibrary;
 
 namespace PDFLibraryTests
@@ -42,7 +41,7 @@ namespace PDFLibraryTests
         {
             var result = PdfMethods.MissingFields(new[] { "FirstName"}, File.ReadAllBytes(_testPDF));
 
-            Assert.AreEqual("[\"MiddleInitial\",\"LastName\",\"Street\",\"City\",\"Zip\",\"State\",\"CustomerSince\",\"PointBalance\",\"Active\",\"TIN\"]",JsonConvert.SerializeObject(result));
+            Assert.AreEqual("[\"MiddleInitial\",\"LastName\",\"Street\",\"City\",\"Zip\",\"State\",\"CustomerSince\",\"PointBalance\",\"Active\",\"TIN\"]",PdfMethods.ToJson(result));
         }
 
 
