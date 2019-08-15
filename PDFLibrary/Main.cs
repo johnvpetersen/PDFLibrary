@@ -37,11 +37,7 @@ namespace PDFLibrary
 
         public static ImmutableArray<bool> IsPDF(ImmutableArray<byte[]> file)
         {
-            if (file[0] == null || file[0].Length == 0)
-                return ImmutableArray.Create<bool>(false);
 
-            try
-            {
                 using (var ms = new MemoryStream(file[0]))
                 {
                     using (var reader = new PdfReader(ms))
@@ -49,11 +45,7 @@ namespace PDFLibrary
                         return ImmutableArray.Create<bool>(true);
                     }
                 }
-            }
-            catch (iText.IO.IOException)
-            {
-                return ImmutableArray.Create<bool>(false);
-            }
+
         }
 
         public static ImmutableArray<string>  MissingFields(ImmutableArray<string> fields, ImmutableArray<byte[]>  pdf)
@@ -129,18 +121,8 @@ namespace PDFLibrary
             }
         }
 
-        static ImmutableArray<bool>   validParameters(ImmutableArray<string> fields, ImmutableArray<byte[]> pdf)
-        {
-            if (!IsPDF(pdf)[0])
-                return ImmutableArray.Create<bool>(false);
+      
 
-            return ImmutableArray.Create<bool>(!((fields == null || fields.Length == 0)))  ;
-        }
-
-        public static ImmutableList<PdfField> GetFields(List<PdfField> fields)
-        {
-            return ImmutableList.Create(fields.ToArray());
-        }
     }
 
     public class PdfField

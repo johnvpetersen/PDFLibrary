@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 using PDFLibrary;
 
 namespace PDFLibraryTests
@@ -30,6 +31,8 @@ namespace PDFLibraryTests
         {
             _file = $"{_output}\\{Guid.NewGuid()}.pdf";
         }
+
+
 
 
         [TestMethod]
@@ -64,9 +67,6 @@ namespace PDFLibraryTests
 
            Assert.IsTrue(result[0]);
 
-           result = PdfMethods.IsPDF(PdfMethods.Read(ImmutableArray.Create<string>(_notAPDF)));
-
-           Assert.IsFalse(result[0]);
 
 
 
@@ -99,10 +99,21 @@ namespace PDFLibraryTests
 
          Assert.IsNotNull(data);
         }
-
         [TestMethod]
-        public void CanSetFields()
+        [DataRow("Yes")]
+        [DataRow(null)]
+        public void CanSetFields(string active)
         {
+
+
+
+
+
+
+
+
+
+
             var data = new List<PdfField>()
             {
                 new PdfField("FirstName","John"),
@@ -112,20 +123,24 @@ namespace PDFLibraryTests
                 new PdfField("City","Paoli"),
                 new PdfField("State","PA"),
                 new PdfField("Zip","19301"),
-                new PdfField("Active","Yes"),
+                new PdfField("Active",active),
                 new PdfField("CustomerSince","01/01/2000"),
                 new PdfField("PointBalance","100000","100,000"),
                 new PdfField("TIN","111111111","111-11-1111")
 
             };
-            var newPDF = PdfMethods.SetData( ImmutableArray.Create<PdfField>(data.ToArray()) , PdfMethods.Read(ImmutableArray.Create<string>(_testPDF)));
+
+
+
+
+            var newPDF = PdfMethods.SetData( data.ToImmutableArray() , PdfMethods.Read(ImmutableArray.Create<string>(_testPDF)));
 
 
           var bytesWritten =   PdfMethods.Write(ImmutableArray.Create<string>(_file), newPDF);
 
 
 
-             Assert.AreEqual(newPDF.Length, bytesWritten.Length);
+             Assert.AreEqual(newPDF[0].Length, bytesWritten[0].Length);
 
         }
 
