@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.IO;
 using System.Web;
 using Newtonsoft.Json;
 using PDFLibrary;
@@ -44,7 +46,7 @@ namespace Web
         public byte[] GetPDF(PDFData pdfData, byte[] pdf)
         {
 
-            var _data = new PdfFields()
+            var _data = new List<PdfField>()
             {
                 new PdfField("FirstName",pdfData.FirstName),
                 new PdfField("MiddleInitial",pdfData.MiddleInitial),
@@ -61,7 +63,9 @@ namespace Web
 
             };
 
-            return  PdfMethods.SetData(_data.ToArray(), pdf);
+            
+
+            return  PdfMethods.SetData(  ImmutableArray.Create<PdfField>(_data.ToArray())    , pdf);
 
         }
 

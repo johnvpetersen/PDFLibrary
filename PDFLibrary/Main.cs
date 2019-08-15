@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using iText.Forms;
@@ -11,6 +12,10 @@ namespace PDFLibrary
     public class PdfMethods
 
     {
+        public static T FromJSON<T>(string json)
+        {
+            return JsonConvert.DeserializeObject<T>(json);
+        }
 
         public static string ToJson(object value)
         {
@@ -22,18 +27,15 @@ namespace PDFLibrary
             File.WriteAllBytes(path, bytes);
 
             return Read(path);
-            
         }
 
         public static byte[] Read(string path)
         {
             return File.ReadAllBytes(path);
-
         }
 
         public static bool IsPDF(byte[] file)
         {
-
             if (file == null || file.Length == 0)
                 return false;
 
@@ -53,22 +55,19 @@ namespace PDFLibrary
             }
         }
 
-        public static string[] MissingFields(string[] fields, byte[] pdf)
+        public static string[] MissingFields(ImmutableArray<string> fields, byte[] pdf)
         {
             return !validParameters(fields, pdf) ? null : getFormFields(pdf).Keys.ToArray().Except(fields).ToArray();
         }
 
-        public static string[] ExtraFields(string[] fields, byte[] pdf)
+        public static string[] ExtraFields(ImmutableArray<string> fields, byte[] pdf)
         {
             return !validParameters(fields, pdf) ? null : fields.Except(getFormFields(pdf).Keys).ToArray();
         }
 
 
-        public static bool? ValidateFields(string[] fields, byte[] pdf)
+        public static bool? ValidateFields(ImmutableArray<string> fields, byte[] pdf)
         {
-
-
-
             if (!validParameters(fields, pdf))
                 return null;
 
@@ -86,7 +85,7 @@ namespace PDFLibrary
         }
 
 
-        public static byte[] SetData(PdfField[] fields, byte[] pdf)
+        public static byte[] SetData(ImmutableArray<PdfField>  fields, byte[] pdf)
         {
             if (!IsPDF(pdf))
                 return null;
@@ -98,7 +97,7 @@ namespace PDFLibrary
                 {
                     var form = PdfAcroForm.GetAcroForm(doc, true);
                     var formFields = form.GetFormFields();
-                    foreach (var field in fields.Where(x => !string.IsNullOrEmpty(x.Value) ))
+                    foreach (var field in fields.Where(x => !string.IsNullOrEmpty(x.Value)))
                     {
                         if (string.IsNullOrEmpty(field.DisplayValue))
                         {
@@ -116,40 +115,43 @@ namespace PDFLibrary
             }
         }
 
-        static IDictionary<string, PdfFormField> getFormFields(byte[] pdf)
+        static ImmutableDictionary<string, PdfFormField> getFormFields(byte[] pdf)
         {
-
-
             using (var ms = new MemoryStream(pdf))
             {
                 using (var reader = new PdfReader(ms))
                 {
                     using (var doc = new PdfDocument(reader))
                     {
-                        return PdfAcroForm.GetAcroForm(doc, false).GetFormFields();
+                        var builder = ImmutableDictionary.CreateBuilder<string, PdfFormField>();
+
+                        PdfAcroForm.GetAcroForm(doc, false).GetFormFields().ToList().ForEach(x => builder.Add(x.Key, x.Value));
+
+                        return builder.ToImmutable();
                     }
                 }
             }
-
         }
 
-        
 
-        static bool validParameters(string[] fields, byte[] pdf)
+
+        static bool validParameters(ImmutableArray<string> fields, byte[] pdf)
         {
             if (!IsPDF(pdf))
                 return false;
 
             return !((fields == null || fields.Length == 0));
         }
+
+        public static ImmutableList<PdfField> GetFields(List<PdfField> fields)
+        {
+            return ImmutableList.Create(fields.ToArray());
+        }
+
+
     }
 
 
-
-
-    public class PdfFields : List<PdfField>
-    {
-    }
 
 
     public class PdfField
@@ -165,5 +167,4 @@ namespace PDFLibrary
         public string Value { get; }
         public string DisplayValue { get; }
     }
-
 }
