@@ -25,10 +25,8 @@ namespace Web
         }
 
 
-        public byte[] GetFileBytes(HttpPostedFileBase file)
+        public ImmutableArray<byte[]> GetFileBytes(HttpPostedFileBase file)
         {
-            if (file == null || file.ContentLength == 0)
-                return null;
 
             int fileSizeInBytes = file.ContentLength;
             byte[] pdf = null;
@@ -37,10 +35,8 @@ namespace Web
                 pdf = br.ReadBytes(fileSizeInBytes);
             }
 
-            if (!PdfMethods.IsPDF(ImmutableArray.Create<byte[]>(pdf)))
-                return null;
 
-            return pdf;
+            return ImmutableArray.Create<byte[]>(pdf) ;
 
         }
 

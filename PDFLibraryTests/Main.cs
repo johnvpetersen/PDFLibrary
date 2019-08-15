@@ -37,8 +37,10 @@ namespace PDFLibraryTests
         {
             var result = PdfMethods.MissingFields(ImmutableArray.Create<string>("FirstName"), PdfMethods.Read(  ImmutableArray.Create<string>(_testPDF)   ));
 
+            var actual = PdfMethods.ToJson<string>(result)[0];
 
-            Assert.AreEqual("[\"State\",\"City\",\"Active\",\"TIN\",\"Street\",\"Zip\",\"MiddleInitial\",\"LastName\",\"PointBalance\",\"CustomerSince\"]", PdfMethods.ToJson<string[]>(ImmutableArray.Create<string[]>(result))[0]);
+
+            Assert.AreEqual("[\"State\",\"City\",\"Active\",\"TIN\",\"Street\",\"Zip\",\"MiddleInitial\",\"LastName\",\"PointBalance\",\"CustomerSince\"]", actual);
         }
 
 
@@ -60,11 +62,11 @@ namespace PDFLibraryTests
         {
            var  result = PdfMethods.IsPDF(PdfMethods.Read(ImmutableArray.Create<string>(_testPDF)));
 
-           Assert.IsTrue(result);
+           Assert.IsTrue(result[0]);
 
            result = PdfMethods.IsPDF(PdfMethods.Read(ImmutableArray.Create<string>(_notAPDF)));
 
-           Assert.IsFalse(result);
+           Assert.IsFalse(result[0]);
 
 
 
@@ -73,19 +75,16 @@ namespace PDFLibraryTests
         [TestMethod]
         public void CanValidateFields()
         {
-            bool? result;
+            bool result;
             
-            result =   PdfMethods.ValidateFields(ImmutableArray.Create<string>("FirstNameX"), PdfMethods.Read(ImmutableArray.Create<string>(_testPDF)));
+            result =   PdfMethods.ValidateFields(ImmutableArray.Create<string>("FirstNameX"), PdfMethods.Read(ImmutableArray.Create<string>(_testPDF)))[0];
 
             Assert.AreEqual(false,result);
 
-            result = PdfMethods.ValidateFields(ImmutableArray.Create<string>("FirstName"), PdfMethods.Read(ImmutableArray.Create<string>(_testPDF)));
+            result = PdfMethods.ValidateFields(ImmutableArray.Create<string>("FirstName"), PdfMethods.Read(ImmutableArray.Create<string>(_testPDF)))[0];
 
             Assert.AreEqual(true, result);
 
-            result = PdfMethods.ValidateFields(ImmutableArray.Create<string>(), PdfMethods.Read(ImmutableArray.Create<string>(_testPDF)));
-
-            Assert.IsNull(result);
 
 
 
