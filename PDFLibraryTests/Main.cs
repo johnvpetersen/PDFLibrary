@@ -20,6 +20,7 @@ namespace PDFLibraryTests
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
+
             Directory.CreateDirectory(_output);
         }
 
@@ -34,11 +35,10 @@ namespace PDFLibraryTests
         [TestMethod]
         public void CanDetectMissingFields()
         {
-            var result = PdfMethods.MissingFields(ImmutableArray.Create<string>("FirstName"), PdfMethods.Read(_testPDF));
-            var actual = PdfMethods.ToJson(result);
+            var result = PdfMethods.MissingFields(ImmutableArray.Create<string>("FirstName"), PdfMethods.Read(  ImmutableArray.Create<string>(_testPDF)   ));
 
 
-            Assert.AreEqual("[\"State\",\"City\",\"Active\",\"TIN\",\"Street\",\"Zip\",\"MiddleInitial\",\"LastName\",\"PointBalance\",\"CustomerSince\"]", PdfMethods. ToJson(result));
+            Assert.AreEqual("[\"State\",\"City\",\"Active\",\"TIN\",\"Street\",\"Zip\",\"MiddleInitial\",\"LastName\",\"PointBalance\",\"CustomerSince\"]", PdfMethods.ToJson<string[]>(ImmutableArray.Create<string[]>(result))[0]);
         }
 
 
@@ -48,7 +48,7 @@ namespace PDFLibraryTests
         {
 
 
-          var  result = PdfMethods.ExtraFields(ImmutableArray.Create<string>("FirstName", "ExtraField"), PdfMethods.Read(_testPDF));
+          var  result = PdfMethods.ExtraFields(ImmutableArray.Create<string>("FirstName", "ExtraField"), PdfMethods.Read( ImmutableArray.Create<string>(_testPDF) ));
 
           Assert.AreEqual("ExtraField",result[0]);
         }
@@ -58,11 +58,11 @@ namespace PDFLibraryTests
 
         public void CanValidateIsAPDF()
         {
-           var  result = PdfMethods.IsPDF(PdfMethods.Read(_testPDF));
+           var  result = PdfMethods.IsPDF(PdfMethods.Read(ImmutableArray.Create<string>(_testPDF)));
 
            Assert.IsTrue(result);
 
-           result = PdfMethods.IsPDF(PdfMethods.Read(_notAPDF));
+           result = PdfMethods.IsPDF(PdfMethods.Read(ImmutableArray.Create<string>(_notAPDF)));
 
            Assert.IsFalse(result);
 
@@ -75,29 +75,26 @@ namespace PDFLibraryTests
         {
             bool? result;
             
-            result =   PdfMethods.ValidateFields(ImmutableArray.Create<string>("FirstNameX"), PdfMethods.Read(_testPDF));
+            result =   PdfMethods.ValidateFields(ImmutableArray.Create<string>("FirstNameX"), PdfMethods.Read(ImmutableArray.Create<string>(_testPDF)));
 
             Assert.AreEqual(false,result);
 
-            result = PdfMethods.ValidateFields(ImmutableArray.Create<string>("FirstName"), PdfMethods.Read(_testPDF));
+            result = PdfMethods.ValidateFields(ImmutableArray.Create<string>("FirstName"), PdfMethods.Read(ImmutableArray.Create<string>(_testPDF)));
 
             Assert.AreEqual(true, result);
 
-            result = PdfMethods.ValidateFields(ImmutableArray.Create<string>(), PdfMethods.Read(_testPDF));
+            result = PdfMethods.ValidateFields(ImmutableArray.Create<string>(), PdfMethods.Read(ImmutableArray.Create<string>(_testPDF)));
 
             Assert.IsNull(result);
 
 
-            result = PdfMethods.ValidateFields(ImmutableArray.Create<string>(string.Empty), null);
-
-            Assert.IsNull(result);
 
         }
 
         [TestMethod]
         public void CanGetFields()
         {
-         var data = PdfMethods.GetData(PdfMethods.Read(_testPDF));
+         var data = PdfMethods.GetData(PdfMethods.Read(ImmutableArray.Create<string>(_testPDF)));
 
          
 
@@ -122,10 +119,10 @@ namespace PDFLibraryTests
                 new PdfField("TIN","111111111","111-11-1111")
 
             };
-            var newPDF = PdfMethods.SetData( ImmutableArray.Create<PdfField>(data.ToArray()) , PdfMethods.Read(_testPDF));
+            var newPDF = PdfMethods.SetData( ImmutableArray.Create<PdfField>(data.ToArray()) , PdfMethods.Read(ImmutableArray.Create<string>(_testPDF)));
 
 
-          var bytesWritten =   PdfMethods.Write(_file, newPDF);
+          var bytesWritten =   PdfMethods.Write(ImmutableArray.Create<string>(_file), newPDF);
 
 
 
@@ -134,5 +131,4 @@ namespace PDFLibraryTests
         }
 
     }
-
 }

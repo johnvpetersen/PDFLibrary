@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
+using System.Linq;
 using System.Web;
 using Newtonsoft.Json;
 using PDFLibrary;
@@ -14,7 +15,8 @@ namespace Web
         {
 
 
-            var data = PdfMethods.GetData(pdf);
+            var data = PdfMethods.GetData(ImmutableArray.Create<byte[]>(pdf)).ToDictionary(x => x.Key, x => x.Value);
+
 
             data["Active"] = data["Active"] == "Yes" ? "true" : "false";
 
@@ -35,7 +37,7 @@ namespace Web
                 pdf = br.ReadBytes(fileSizeInBytes);
             }
 
-            if (!PdfMethods.IsPDF(pdf))
+            if (!PdfMethods.IsPDF(ImmutableArray.Create<byte[]>(pdf)))
                 return null;
 
             return pdf;
@@ -63,9 +65,7 @@ namespace Web
 
             };
 
-            
-
-            return  PdfMethods.SetData(  ImmutableArray.Create<PdfField>(_data.ToArray())    , pdf);
+            return  PdfMethods.SetData(  ImmutableArray.Create<PdfField>(_data.ToArray())    , ImmutableArray.Create<byte[]>(pdf))[0];
 
         }
 
