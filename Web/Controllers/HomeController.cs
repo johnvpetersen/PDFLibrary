@@ -22,7 +22,7 @@ namespace Web.Controllers
                 return View();
 
 
-            return  RedirectToAction("DisplayPDFData", _pdfCaller.GetData(pdf[0]));
+            return  RedirectToAction("DisplayPDFData", _pdfCaller.GetData(pdf));
 
         }
 
@@ -55,7 +55,7 @@ namespace Web.Controllers
 
 
 
-            return new FileContentResult(_pdfCaller.GetPDF(pdfData, pdf[0]), "application/pdf");
+            return new FileContentResult(_pdfCaller.GetPDF(pdfData, pdf), "application/pdf");
         }
 
     }

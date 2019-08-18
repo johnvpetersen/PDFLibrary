@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using ImmutableClassLibrary;
 using iText.Forms;
 using iText.Forms.Fields;
 using iText.Kernel.Pdf;
@@ -12,74 +13,70 @@ namespace PDFLibrary
     public class PdfMethods
 
     {
-        public static ImmutableArray<T> FromJSON<T>(ImmutableArray<string> json)
-        {
 
-            return  ImmutableArray.Create<T>(JsonConvert.DeserializeObject<T>(json[0]));
-        }
-
-        public static ImmutableArray<string> ToJson<T>(ImmutableArray<T> value)
+        public static ImmutableArray<byte> Write(ImmutableString path, ImmutableArray<byte> bytes)
         {
-            return ImmutableArray.Create<string>(JsonConvert.SerializeObject(value));
-        }
-
-        public static ImmutableArray<byte[]> Write(ImmutableArray<string> path, ImmutableArray<byte[]> bytes)
-        {
-            File.WriteAllBytes(path[0], bytes[0]);
+            File.WriteAllBytes(path.Value, bytes.ToArray());
 
             return Read(path);
         }
 
-        public static ImmutableArray<byte[]> Read(ImmutableArray<string> path)
+        public static ImmutableArray<byte> Read(ImmutableString path)
         {
-            return  ImmutableArray.Create<byte[]>(File.ReadAllBytes(path[0]));
+            return  ImmutableArray.Create<byte>(File.ReadAllBytes(path.Value));
         }
 
-        public static ImmutableArray<bool> IsPDF(ImmutableArray<byte[]> file)
+        public static ImmutableBoolean IsPDF(ImmutableArray<byte> file)
         {
 
-                using (var ms = new MemoryStream(file[0]))
+                using (var ms = new MemoryStream(file.ToArray()))
                 {
                     using (var reader = new PdfReader(ms))
                     {
-                        return ImmutableArray.Create<bool>(true);
+                        return new ImmutableBoolean(true);
                     }
                 }
 
         }
 
-        public static ImmutableArray<string>  MissingFields(ImmutableArray<string> fields, ImmutableArray<byte[]>  pdf)
+
+        public static ImmutableArray<string> Fields(ImmutableArray<byte> pdf)
+        {
+
+            return getFormFields(pdf).Keys.ToArray().ToImmutableArray();
+        }
+
+
+        public static ImmutableArray<string>  MissingFields(ImmutableArray<string> fields, ImmutableArray<byte>  pdf)
         {
 
             return getFormFields(pdf).Keys.ToArray().Except(fields).ToImmutableArray();
         }
 
-        public static ImmutableArray<string> ExtraFields(ImmutableArray<string> fields, ImmutableArray<byte[]> pdf)
+        public static ImmutableArray<string> ExtraFields(ImmutableArray<string> fields, ImmutableArray<byte> pdf)
         {
             return  fields.Except(getFormFields(pdf).Keys).ToImmutableArray();
         }
 
-        public static ImmutableArray<bool> ValidateFields(ImmutableArray<string> fields, ImmutableArray<byte[]> pdf)
+        public static ImmutableBoolean ValidateFields(ImmutableArray<string> fields, ImmutableArray<byte> pdf)
         {
 
-            return  ImmutableArray.Create<bool>(!fields.Except(getFormFields(pdf).Keys.ToArray()).Any());
+            return new  ImmutableBoolean(!fields.Except(getFormFields(pdf).Keys.ToArray()).Any());
         }
 
-        public static ImmutableDictionary<string,string>  GetData(ImmutableArray<byte[]> pdf)
+        public static ImmutableDictionary<string,string>  GetData(ImmutableArray<byte> pdf)
         {
-
-
             return getFormFields(pdf).ToDictionary(x => x.Key, x => x.Value.GetValueAsString()).ToImmutableDictionary();
         }
 
-        public static ImmutableArray<byte[]> SetData(ImmutableArray<PdfField>  fields, ImmutableArray<byte[]> pdf)
+        public static ImmutableArray<byte> SetData(ImmutableArray<PdfField>  fields, ImmutableArray<byte> pdf)
         {
 
 
 
             using (var ms = new MemoryStream())
             {
-                using (var doc = new PdfDocument(new PdfReader(new MemoryStream(pdf[0])), new PdfWriter(ms)))
+                using (var doc = new PdfDocument(new PdfReader(new MemoryStream(pdf.ToArray())), new PdfWriter(ms)))
 
                 {
                     var form = PdfAcroForm.GetAcroForm(doc, true);
@@ -97,14 +94,14 @@ namespace PDFLibrary
                     }
 
                     doc.Close();
-                    return  ImmutableArray.Create<byte[]>(ms.ToArray());
+                    return   ImmutableArray.Create<byte>(ms.ToArray());
                 }
             }
         }
 
-        static ImmutableDictionary<string, PdfFormField> getFormFields(ImmutableArray<byte[]> pdf)
+        static ImmutableDictionary<string, PdfFormField> getFormFields(ImmutableArray<byte> pdf)
         {
-            using (var ms = new MemoryStream(pdf[0]))
+            using (var ms = new MemoryStream(pdf.ToArray()))
             {
                 using (var reader = new PdfReader(ms))
                 {

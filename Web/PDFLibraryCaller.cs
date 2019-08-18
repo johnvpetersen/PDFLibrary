@@ -15,7 +15,7 @@ namespace Web
         {
 
 
-            var data = PdfMethods.GetData(ImmutableArray.Create<byte[]>(pdf)).ToDictionary(x => x.Key, x => x.Value);
+            var data = PdfMethods.GetData(ImmutableArray.Create<byte>(pdf)).ToDictionary(x => x.Key, x => x.Value);
 
 
             data["Active"] = data["Active"] == "Yes" ? "true" : "false";
@@ -25,7 +25,7 @@ namespace Web
         }
 
 
-        public ImmutableArray<byte[]> GetFileBytes(HttpPostedFileBase file)
+        public byte[] GetFileBytes(HttpPostedFileBase file)
         {
 
             int fileSizeInBytes = file.ContentLength;
@@ -36,7 +36,7 @@ namespace Web
             }
 
 
-            return ImmutableArray.Create<byte[]>(pdf) ;
+            return pdf ;
 
         }
 
@@ -61,7 +61,7 @@ namespace Web
 
             };
 
-            return  PdfMethods.SetData(  ImmutableArray.Create<PdfField>(_data.ToArray())    , ImmutableArray.Create<byte[]>(pdf))[0];
+            return  PdfMethods.SetData(  ImmutableArray.Create<PdfField>(_data.ToArray())    ,   ImmutableArray.Create<byte>(pdf)).ToArray();
 
         }
 

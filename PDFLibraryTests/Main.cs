@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
+using System.Linq;
+using ImmutableClassLibrary;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using PDFLibrary;
@@ -35,17 +37,24 @@ namespace PDFLibraryTests
 
 
 
+
+
+
         [TestMethod]
-        public void CanDetectMissingFields()
+        public void CanGetFields()
+
         {
-            var result = PdfMethods.MissingFields(ImmutableArray.Create<string>("FirstName"), PdfMethods.Read(  ImmutableArray.Create<string>(_testPDF)   ));
+            var expected =
+                "[\"State\",\"City\",\"Active\",\"TIN\",\"Street\",\"Zip\",\"MiddleInitial\",\"LastName\",\"FirstName\",\"PointBalance\",\"CustomerSince\"]";
 
-            var actual = PdfMethods.ToJson<string>(result)[0];
+            var pdf = ImmutableArray.Create<byte>(File.ReadAllBytes(_testPDF));
+            var fields = PdfMethods.Fields(pdf);
+
+            Assert.AreEqual(expected, JsonConvert.SerializeObject(fields));
 
 
-            Assert.AreEqual("[\"State\",\"City\",\"Active\",\"TIN\",\"Street\",\"Zip\",\"MiddleInitial\",\"LastName\",\"PointBalance\",\"CustomerSince\"]", actual);
+
         }
-
 
 
         [TestMethod]
@@ -53,7 +62,7 @@ namespace PDFLibraryTests
         {
 
 
-          var  result = PdfMethods.ExtraFields(ImmutableArray.Create<string>("FirstName", "ExtraField"), PdfMethods.Read( ImmutableArray.Create<string>(_testPDF) ));
+          var  result = PdfMethods.ExtraFields(ImmutableArray.Create<string>("FirstName", "ExtraField"), PdfMethods.Read(  new ImmutableString(_testPDF) ));
 
           Assert.AreEqual("ExtraField",result[0]);
         }
@@ -63,12 +72,9 @@ namespace PDFLibraryTests
 
         public void CanValidateIsAPDF()
         {
-           var  result = PdfMethods.IsPDF(PdfMethods.Read(ImmutableArray.Create<string>(_testPDF)));
+           var  result = PdfMethods.IsPDF(PdfMethods.Read(new ImmutableString(_testPDF)));
 
-           Assert.IsTrue(result[0]);
-
-
-
+           Assert.IsTrue(result.Value);
 
         }
 
@@ -77,11 +83,11 @@ namespace PDFLibraryTests
         {
             bool result;
             
-            result =   PdfMethods.ValidateFields(ImmutableArray.Create<string>("FirstNameX"), PdfMethods.Read(ImmutableArray.Create<string>(_testPDF)))[0];
+            result =   PdfMethods.ValidateFields(ImmutableArray.Create<string>("FirstNameX"), PdfMethods.Read(new ImmutableString(_testPDF))).Value;
 
             Assert.AreEqual(false,result);
 
-            result = PdfMethods.ValidateFields(ImmutableArray.Create<string>("FirstName"), PdfMethods.Read(ImmutableArray.Create<string>(_testPDF)))[0];
+            result = PdfMethods.ValidateFields(ImmutableArray.Create<string>("FirstName"), PdfMethods.Read(new ImmutableString(_testPDF))).Value;
 
             Assert.AreEqual(true, result);
 
@@ -91,9 +97,9 @@ namespace PDFLibraryTests
         }
 
         [TestMethod]
-        public void CanGetFields()
+        public void CanGetFields2()
         {
-         var data = PdfMethods.GetData(PdfMethods.Read(ImmutableArray.Create<string>(_testPDF)));
+         var data = PdfMethods.GetData(PdfMethods.Read( new ImmutableString(_testPDF)));
 
          
 
@@ -133,16 +139,21 @@ namespace PDFLibraryTests
 
 
 
-            var newPDF = PdfMethods.SetData( data.ToImmutableArray() , PdfMethods.Read(ImmutableArray.Create<string>(_testPDF)));
+            var newPDF = PdfMethods.SetData( data.ToImmutableArray() , PdfMethods.Read(new ImmutableString(_testPDF)));
 
 
-          var bytesWritten =   PdfMethods.Write(ImmutableArray.Create<string>(_file), newPDF);
+          var bytesWritten =   PdfMethods.Write( new ImmutableString(_file), newPDF);
 
 
 
-             Assert.AreEqual(newPDF[0].Length, bytesWritten[0].Length);
+             Assert.AreEqual(newPDF.ToArray().Length , bytesWritten.ToArray().Length);
 
         }
 
     }
+
+
+
+
+  
 }
