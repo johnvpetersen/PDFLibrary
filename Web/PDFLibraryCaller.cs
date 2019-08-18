@@ -54,7 +54,7 @@ namespace Web
                 new PdfField("State",pdfData.State),
                 new PdfField("Zip",pdfData.Zip),
 
-                new PdfField("Active",pdfData.Active ? "Yes": null),
+                new PdfField("Active",pdfData.Active ? "Yes": string.Empty),
                 new PdfField("CustomerSince", stripDelimter(pdfData.CustomerSince,"/"),pdfData.CustomerSince),
                 new PdfField("PointBalance",stripDelimter(pdfData.PointBalance,","),pdfData.PointBalance),
                 new PdfField("TIN", stripDelimter(pdfData.TIN,"-"),pdfData.TIN)

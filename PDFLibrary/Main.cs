@@ -1,31 +1,31 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using ImmutableClassLibrary;
 using iText.Forms;
 using iText.Forms.Fields;
 using iText.Kernel.Pdf;
-using Newtonsoft.Json;
 
 namespace PDFLibrary
 {
     public class PdfMethods
 
     {
-
+        //Write a  PDF  
         public static ImmutableArray<byte> Write(ImmutableString path, ImmutableArray<byte> bytes)
         {
             File.WriteAllBytes(path.Value, bytes.ToArray());
 
             return Read(path);
         }
-
+        
+        //Read a PDF
         public static ImmutableArray<byte> Read(ImmutableString path)
         {
             return  ImmutableArray.Create<byte>(File.ReadAllBytes(path.Value));
         }
 
+        //Determine if a file is a PDF
         public static ImmutableBoolean IsPDF(ImmutableArray<byte> file)
         {
 
@@ -40,6 +40,7 @@ namespace PDFLibrary
         }
 
 
+        //Get a list of fields in a PDF
         public static ImmutableArray<string> Fields(ImmutableArray<byte> pdf)
         {
 
@@ -47,33 +48,15 @@ namespace PDFLibrary
         }
 
 
-        public static ImmutableArray<string>  MissingFields(ImmutableArray<string> fields, ImmutableArray<byte>  pdf)
-        {
-
-            return getFormFields(pdf).Keys.ToArray().Except(fields).ToImmutableArray();
-        }
-
-        public static ImmutableArray<string> ExtraFields(ImmutableArray<string> fields, ImmutableArray<byte> pdf)
-        {
-            return  fields.Except(getFormFields(pdf).Keys).ToImmutableArray();
-        }
-
-        public static ImmutableBoolean ValidateFields(ImmutableArray<string> fields, ImmutableArray<byte> pdf)
-        {
-
-            return new  ImmutableBoolean(!fields.Except(getFormFields(pdf).Keys.ToArray()).Any());
-        }
-
+        //Get field data from a PDF
         public static ImmutableDictionary<string,string>  GetData(ImmutableArray<byte> pdf)
         {
             return getFormFields(pdf).ToDictionary(x => x.Key, x => x.Value.GetValueAsString()).ToImmutableDictionary();
         }
 
+        //Set field data in a PDF
         public static ImmutableArray<byte> SetData(ImmutableArray<PdfField>  fields, ImmutableArray<byte> pdf)
         {
-
-
-
             using (var ms = new MemoryStream())
             {
                 using (var doc = new PdfDocument(new PdfReader(new MemoryStream(pdf.ToArray())), new PdfWriter(ms)))
@@ -81,7 +64,7 @@ namespace PDFLibrary
                 {
                     var form = PdfAcroForm.GetAcroForm(doc, true);
                     var formFields = form.GetFormFields();
-                    foreach (var field in fields.Where(x => !string.IsNullOrEmpty(x.Value)))
+                    foreach (var field in fields.Where(x => x.Value != null))
                     {
                         if (string.IsNullOrEmpty(field.DisplayValue))
                         {
@@ -117,11 +100,10 @@ namespace PDFLibrary
                 }
             }
         }
-
-      
-
     }
 
+
+    //PDF Field Object to hold name, value, and display value
     public class PdfField
     {
         public PdfField(string name, string value, string displayValue = null)
