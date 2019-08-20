@@ -70,7 +70,7 @@ namespace PDFLibraryTests
 
         [TestMethod]
         [DataRow("Yes")]
-        [DataRow(null)]
+        [DataRow("")]
         public void CanSetFields(string active)
         {
             var data = new List<PdfField>()

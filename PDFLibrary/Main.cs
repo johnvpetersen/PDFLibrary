@@ -63,9 +63,9 @@ namespace PDFLibrary
                 using (var doc = new PdfDocument(new PdfReader(new MemoryStream(pdf.ToArray())), new PdfWriter(ms)))
 
                 {
-                    var form = PdfAcroForm.GetAcroForm(doc, true);
+                    var form = PdfAcroForm.GetAcroForm(doc,false);
                     var formFields = form.GetFormFields();
-                    foreach (var field in fields.Where(x => x.Value != null))
+                    foreach (var field in fields)
                     {
                         if (string.IsNullOrEmpty(field.DisplayValue))
                         {
@@ -91,10 +91,13 @@ namespace PDFLibrary
                 {
                     using (var doc = new PdfDocument(reader))
                     {
-                        var builder = ImmutableDictionary.CreateBuilder<string, PdfFormField>();
+                        var builder = ImmutableDictionary
+                            .CreateBuilder<string, PdfFormField>();
 
 
-                        PdfAcroForm.GetAcroForm(doc, false).GetFormFields().ToList().ForEach(x => builder.Add(x.Key, x.Value));
+                        PdfAcroForm.GetAcroForm(doc, false)
+                            .GetFormFields().ToList()
+                            .ForEach(x => builder.Add(x.Key, x.Value));
 
                         return builder.ToImmutable();
                     }
